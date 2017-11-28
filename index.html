@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>File Upload Demo</title>
+    <meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support and progress bar for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/jquery.fileupload.css">
+</head>
+<body>
+<div class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="https://github.com/blueimp/jQuery-File-Upload">File Uploader</a>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <h1>File Uploader</h1>
+    <br>
+    <blockquote>
+        <p>This demo showcases how to Lambda to upload images.</p>
+    </blockquote>
+    <br>
+    <span class="btn btn-info fileinput-button">
+        <i class="glyphicon glyphicon-plus"></i>
+        <span>Upload Image...</span>
+        <input id="fileupload" type="file" name="files[]" multiple>
+    </span>
+    <br>
+    <br>
+    <div id="progress" class="progress">
+        <div class="progress-bar progress-bar-success"></div>
+    </div>
+    <div id="output" class="files">
+        <img />
+        <div id="output-url"></div>
+    </div>
+    <br>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="js/vendor/jquery.ui.widget.js"></script>
+<script src="js/jquery.iframe-transport.js"></script>
+<script src="js/jquery.fileupload.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+/*jslint unparam: true */
+/*global window, $ */
+$(function () {
+    'use strict';
+    
+    $('#fileupload')
+        .fileupload({
+            autoUpload: false,
+            type: 'PUT',
+            multipart: false,
+            beforeSend: function (xhr, data) {
+              xhr.setRequestHeader('Content-Disposition', '');
+            },
+            limitConcurrentUploads: 1,
+            add: function (e, data) {
+                
+                $.post('https://ho0b5a26ae.execute-api.eu-west-1.amazonaws.com/Prod/upload', JSON.stringify({ contentType: data.files[0].type }), function (result) {
+            
+                if (!result.errorMessage) {
+                    data.url = result.oneTimeUploadUrl;
+                    data.contentType = data.files[0].type;
+                    
+                    data.resultUrl = result.resultUrl;
+                    
+                    data.submit();
+                } else {
+                    alert(result.errorMessage);
+                }
+              }, 'json');
+            },
+            done: function (e, data) {
+                $('#output img').replaceWith('<img src="' + data.resultUrl + '" class="preview"/>');
+                $('#output-url').css('display','block').attr('value',data.resultUrl);
+            },
+            error: function() {},
+            progressall: function (e, data) {
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#progress .progress-bar').css(
+                    'width',
+                    progress + '%'
+                );
+            }
+        })
+        .prop('disabled', !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+});
+</script>
+</body>
+</html>
