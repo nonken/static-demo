@@ -62,7 +62,8 @@ $(function () {
             limitConcurrentUploads: 1,
             add: function (e, data) {
                 
-                $.post('https://ho0b5a26ae.execute-api.eu-west-1.amazonaws.com/Prod/upload', JSON.stringify({ contentType: data.files[0].type }), function (result) {
+                //$.post('https://ho0b5a26ae.execute-api.eu-west-1.amazonaws.com/Prod/upload', JSON.stringify({ contentType: data.files[0].type }), function (result) {
+                $.post('https://oek5qkypih.execute-api.eu-west-1.amazonaws.com/Prod/upload', JSON.stringify({ contentType: data.files[0].type }), function (result) {
             
                 if (!result.errorMessage) {
                     data.url = result.oneTimeUploadUrl;
